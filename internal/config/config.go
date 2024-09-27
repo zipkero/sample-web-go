@@ -10,7 +10,9 @@ type Config struct {
 		Addr string
 	}
 	Mongo struct {
-		URI string
+		URI      string
+		Username string
+		Password string
 	}
 	Redis struct {
 		URI string

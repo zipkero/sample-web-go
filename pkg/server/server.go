@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/zipkero/sample-web-go/internal/config"
 	"github.com/zipkero/sample-web-go/internal/db"
-	"github.com/zipkero/sample-web-go/pkg/middleware"
 )
 
 type Server struct {
@@ -17,8 +16,6 @@ type Server struct {
 
 func NewServer(path string) (*Server, error) {
 	svr := new(Server)
-
-	svr.engine = gin.Default()
 
 	cfg, err := config.NewConfig(path)
 	if err != nil {
@@ -36,12 +33,20 @@ func NewServer(path string) (*Server, error) {
 		return nil, err
 	}
 
+	svr.engine = gin.Default()
+
 	return svr, nil
 }
 
-func (s *Server) Register(method, path string, handlers ...gin.HandlerFunc) {
-	handlers = append(handlers, middleware.AuthMiddleware())
+func (s *Server) UseRouter(router func(s *Server)) {
+	router(s)
+}
 
+func (s *Server) RegisterGroup(path string, handlers ...gin.HandlerFunc) *gin.RouterGroup {
+	return s.engine.Group(path, handlers...)
+}
+
+func (s *Server) RegisterRoute(method, path string, handlers ...gin.HandlerFunc) {
 	s.engine.Handle(method, path, handlers...)
 }
 

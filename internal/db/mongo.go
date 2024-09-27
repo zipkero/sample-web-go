@@ -13,8 +13,8 @@ type MongoProvider struct {
 
 func NewMongoProvider(config *config.Config) (*MongoProvider, error) {
 	opt := options.Client().ApplyURI(config.Mongo.URI).SetAuth(options.Credential{
-		Username: "root",
-		Password: "1234",
+		Username: config.Mongo.Username,
+		Password: config.Mongo.Password,
 	})
 
 	client, err := mongo.Connect(context.TODO(), opt)
@@ -24,4 +24,9 @@ func NewMongoProvider(config *config.Config) (*MongoProvider, error) {
 	}
 
 	return &MongoProvider{client}, nil
+}
+
+func (m *MongoProvider) FindOne(db, collection string, filter interface{}, result interface{}) error {
+	c := m.client.Database(db).Collection(collection)
+	return c.FindOne(context.TODO(), filter).Decode(result)
 }

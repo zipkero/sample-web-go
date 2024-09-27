@@ -3,6 +3,8 @@ Addr = ":8080"
 
 [Mongo]
 URI = "mongodb://localhost:27017/web"
+Username = "root"
+Password = "1234"
 
 [Redis]
 URI = "redis://localhost:6379"
