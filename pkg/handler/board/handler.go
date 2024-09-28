@@ -5,6 +5,8 @@ package board
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/zipkero/sample-web-go/pkg/dto"
+	"github.com/zipkero/sample-web-go/pkg/handler"
 )
 
 func FindAll(c *gin.Context) {
@@ -20,8 +22,15 @@ func FindOne(c *gin.Context) {
 }
 
 func Insert(c *gin.Context) {
+	var board dto.BoardInsert
+
+	if err := c.ShouldBind(&board); err != nil {
+		handler.AbortWith(c, 400, "Bad Request")
+		return
+	}
+
 	c.JSON(200, gin.H{
-		"message": "Insert",
+		"message": fmt.Sprintf("Insert: %s", board.Title),
 	})
 }
 
@@ -38,6 +47,13 @@ func DeleteOne(c *gin.Context) {
 }
 
 func InsertMany(c *gin.Context) {
+	var boards []dto.BoardInsert
+
+	if err := c.ShouldBind(&boards); err != nil {
+		handler.AbortWith(c, 400, "Bad Request")
+		return
+	}
+
 	c.JSON(200, gin.H{
 		"message": "Insert Many",
 	})
