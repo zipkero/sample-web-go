@@ -5,20 +5,39 @@ package board
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/zipkero/sample-web-go/internal/service"
 	"github.com/zipkero/sample-web-go/pkg/dto"
 	"github.com/zipkero/sample-web-go/pkg/handler"
+	"strconv"
 )
 
-func FindAll(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "Find All",
-	})
+func FindAll(boardService *service.BoardService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "Find All",
+		})
+	}
 }
 
-func FindOne(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": fmt.Sprintf("Find One: %s", c.Param("id")),
-	})
+func FindOne(boardService *service.BoardService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			handler.AbortWith(c, 400, "id must be integer")
+			return
+		}
+
+		board, err := boardService.FindOne(ctx, id)
+		if err != nil {
+			handler.AbortWith(c, 500, err.Error())
+			return
+		}
+
+		c.JSON(200, gin.H{
+			"data": board,
+		})
+	}
 }
 
 func Insert(c *gin.Context) {

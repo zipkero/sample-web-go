@@ -10,8 +10,8 @@ type Server struct {
 	config *config.Config
 	engine *gin.Engine
 
-	mongoProvider *db.MongoProvider
-	redisProvider *db.RedisProvider
+	MongoProvider *db.MongoProvider
+	RedisProvider *db.RedisProvider
 }
 
 func NewServer(path string) (*Server, error) {
@@ -23,12 +23,12 @@ func NewServer(path string) (*Server, error) {
 	}
 
 	svr.config = cfg
-	svr.mongoProvider, err = db.NewMongoProvider(cfg)
+	svr.MongoProvider, err = db.NewMongoProvider(cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	svr.redisProvider, err = db.NewRedisProvider(cfg)
+	svr.RedisProvider, err = db.NewRedisProvider(cfg)
 	if err != nil {
 		return nil, err
 	}

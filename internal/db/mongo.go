@@ -26,7 +26,12 @@ func NewMongoProvider(config *config.Config) (*MongoProvider, error) {
 	return &MongoProvider{client}, nil
 }
 
-func (m *MongoProvider) FindOne(db, collection string, filter interface{}, result interface{}) error {
+func (m *MongoProvider) FindOne(ctx context.Context, db, collection string, filter interface{}, result interface{}) error {
 	c := m.client.Database(db).Collection(collection)
-	return c.FindOne(context.TODO(), filter).Decode(result)
+	return c.FindOne(ctx, filter).Decode(result)
+}
+
+func (m *MongoProvider) Find(ctx context.Context, db, collection string, filter interface{}) (*mongo.Cursor, error) {
+	c := m.client.Database(db).Collection(collection)
+	return c.Find(ctx, filter)
 }
