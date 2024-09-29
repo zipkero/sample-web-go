@@ -3,18 +3,24 @@ package board
 // mongodb 사용
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/zipkero/sample-web-go/internal/service"
 	"github.com/zipkero/sample-web-go/pkg/dto"
 	"github.com/zipkero/sample-web-go/pkg/handler"
-	"strconv"
 )
 
 func FindAll(boardService *service.BoardService) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+
+		boards, err := boardService.FindAll(ctx)
+		if err != nil {
+			handler.AbortWith(c, 500, err.Error())
+			return
+		}
+
 		c.JSON(200, gin.H{
-			"message": "Find All",
+			"data": boards,
 		})
 	}
 }
@@ -22,13 +28,8 @@ func FindAll(boardService *service.BoardService) gin.HandlerFunc {
 func FindOne(boardService *service.BoardService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			handler.AbortWith(c, 400, "id must be integer")
-			return
-		}
 
-		board, err := boardService.FindOne(ctx, id)
+		board, err := boardService.FindOne(ctx, c.Param("id"))
 		if err != nil {
 			handler.AbortWith(c, 500, err.Error())
 			return
@@ -40,17 +41,27 @@ func FindOne(boardService *service.BoardService) gin.HandlerFunc {
 	}
 }
 
-func Insert(c *gin.Context) {
-	var board dto.BoardInsert
+func Insert(boardService *service.BoardService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
 
-	if err := c.ShouldBind(&board); err != nil {
-		handler.AbortWith(c, 400, "Bad Request")
-		return
+		var board dto.BoardInsert
+
+		if err := c.ShouldBind(&board); err != nil {
+			handler.AbortWith(c, 400, "wrong request board data")
+			return
+		}
+
+		id, err := boardService.InsertOne(ctx, board.ToEntity())
+		if err != nil {
+			handler.AbortWith(c, 500, err.Error())
+			return
+		}
+
+		c.JSON(201, gin.H{
+			"id": id,
+		})
 	}
-
-	c.JSON(200, gin.H{
-		"message": fmt.Sprintf("Insert: %s", board.Title),
-	})
 }
 
 func UpdateOne(c *gin.Context) {

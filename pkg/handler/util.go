@@ -4,6 +4,8 @@ import "github.com/gin-gonic/gin"
 
 var defaultFailMessages = map[int]string{
 	400: "Bad Request",
+	401: "Unauthorized",
+	500: "Internal Server Error",
 }
 
 func AbortWith(c *gin.Context, code int, message string) {

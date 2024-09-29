@@ -1,6 +1,10 @@
 package dto
 
-import "time"
+import (
+	"github.com/zipkero/sample-web-go/internal/entity"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
+)
 
 type BoardBase struct {
 	Title    string    `json:"title" binding:"required"`
@@ -12,11 +16,44 @@ type BoardBase struct {
 }
 
 type BoardInsert struct {
-	ID int `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
 	BoardBase
 }
 
 type BoardUpdate struct {
-	ID int `json:"id" binding:"required"`
+	ID string `json:"id" binding:"required"`
 	BoardBase
+}
+
+type BoardResponse struct {
+	ID string `json:"id"`
+	BoardBase
+}
+
+func (b BoardInsert) ToEntity() *entity.Board {
+	return &entity.Board{
+		Title:    b.Title,
+		Content:  b.Content,
+		CreateAt: b.CreateAt,
+		CreateBy: b.CreateBy,
+		UpdateAt: b.UpdateAt,
+		UpdateBy: b.UpdateBy,
+	}
+}
+
+func (b BoardUpdate) ToEntity() (*entity.Board, error) {
+	id, err := primitive.ObjectIDFromHex(b.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.Board{
+		ID:       id,
+		Title:    b.Title,
+		Content:  b.Content,
+		CreateAt: b.CreateAt,
+		CreateBy: b.CreateBy,
+		UpdateAt: b.UpdateAt,
+		UpdateBy: b.UpdateBy,
+	}, nil
 }

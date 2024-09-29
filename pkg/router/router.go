@@ -31,7 +31,11 @@ func RegisterRoute(svr *server.Server) {
 	svr.RegisterRoute("POST", "/user/register", user.Register)
 
 	authGroup := svr.RegisterGroup("/", middleware.AuthMiddleware())
-	authGroup.POST("/board", board.Insert)
+	authGroup.POST("/board", func(c *gin.Context) {
+		boardService := service.NewBoardService(svr.MongoProvider)
+
+		board.Insert(boardService)(c)
+	})
 	authGroup.PATCH("/board/:id", board.UpdateOne)
 	authGroup.DELETE("/board/:id", board.DeleteOne)
 	authGroup.POST("/user/logout", user.Logout)

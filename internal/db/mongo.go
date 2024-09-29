@@ -35,3 +35,8 @@ func (m *MongoProvider) Find(ctx context.Context, db, collection string, filter 
 	c := m.client.Database(db).Collection(collection)
 	return c.Find(ctx, filter)
 }
+
+func (m *MongoProvider) InsertOne(ctx context.Context, db, collection string, document interface{}) (*mongo.InsertOneResult, error) {
+	c := m.client.Database(db).Collection(collection)
+	return c.InsertOne(ctx, document)
+}
