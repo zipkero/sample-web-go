@@ -64,16 +64,20 @@ func Insert(boardService *service.BoardService) gin.HandlerFunc {
 	}
 }
 
-func UpdateOne(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "Update",
-	})
+func UpdateOne(boardService *service.BoardService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "Update",
+		})
+	}
 }
 
-func DeleteOne(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "Delete",
-	})
+func DeleteOne(boardService *service.BoardService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "Delete",
+		})
+	}
 }
 
 func InsertMany(c *gin.Context) {

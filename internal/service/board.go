@@ -7,15 +7,10 @@ import (
 	"github.com/zipkero/sample-web-go/pkg/dto"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"log"
 )
 
 type BoardService struct {
 	provider *db.MongoProvider
-}
-
-func init() {
-	log.Println("Board Service Init")
 }
 
 var (
