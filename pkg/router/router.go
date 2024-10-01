@@ -46,8 +46,21 @@ func RegisterRoute(svr *server.Server) {
 
 		board.DeleteOne(boardService)(c)
 	})
+	authGroup.POST("/boards", func(c *gin.Context) {
+		boardService := service.NewBoardService(svr.MongoProvider)
+
+		board.InsertMany(boardService)(c)
+	})
+	authGroup.PATCH("/boards", func(c *gin.Context) {
+		boardService := service.NewBoardService(svr.MongoProvider)
+
+		board.UpdateMany(boardService)(c)
+	})
+	authGroup.DELETE("/boards", func(c *gin.Context) {
+		boardService := service.NewBoardService(svr.MongoProvider)
+
+		board.DeleteMany(boardService)(c)
+	})
+
 	authGroup.POST("/user/logout", user.Logout)
-	authGroup.POST("/boards", board.InsertMany)
-	authGroup.PATCH("/boards", board.UpdateMany)
-	authGroup.DELETE("/boards", board.DeleteMany)
 }

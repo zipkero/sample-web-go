@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"github.com/zipkero/sample-web-go/internal/db"
 	"github.com/zipkero/sample-web-go/internal/entity"
 	"github.com/zipkero/sample-web-go/pkg/dto"
@@ -60,6 +61,42 @@ func (b *BoardService) InsertOne(ctx context.Context, board *entity.Board) (stri
 	}
 	objectId := result.InsertedID.(primitive.ObjectID)
 	return objectId.Hex(), err
+}
+
+func (b *BoardService) UpdateOne(ctx context.Context, id string, board *entity.Board) error {
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	result, err := b.provider.UpdateOne(ctx, dbName, collectionName, bson.D{{
+		"_id", objectId,
+	}}, bson.D{{
+		"$set", board,
+	}})
+	if err != nil {
+		return err
+	}
+	if result.ModifiedCount == 0 {
+		return errors.New("not found")
+	}
+	return nil
+}
+
+func (b *BoardService) DeleteOne(ctx context.Context, id string) error {
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	result, err := b.provider.DeleteOne(ctx, dbName, collectionName, bson.D{{
+		"_id", objectId,
+	}})
+	if err != nil {
+		return err
+	}
+	if result.DeletedCount == 0 {
+		return errors.New("not found")
+	}
+	return nil
 }
 
 func (b *BoardService) ToDto(board *entity.Board) *dto.BoardResponse {

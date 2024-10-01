@@ -66,41 +66,78 @@ func Insert(boardService *service.BoardService) gin.HandlerFunc {
 
 func UpdateOne(boardService *service.BoardService) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+		var board dto.BoardUpdate
+
+		if err := c.ShouldBind(&board); err != nil {
+			handler.AbortWith(c, 400, "wrong request board data")
+			return
+		}
+
+		entity, err := board.ToEntity()
+		if err != nil {
+			handler.AbortWith(c, 400, "modify entity error")
+			return
+		}
+
+		err = boardService.UpdateOne(ctx, c.Param("id"), entity)
+		if err != nil {
+			handler.AbortWith(c, 500, err.Error())
+			return
+		}
+
 		c.JSON(200, gin.H{
-			"message": "Update",
+			"data": entity,
 		})
 	}
 }
 
 func DeleteOne(boardService *service.BoardService) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+
+		err := boardService.DeleteOne(ctx, c.Param("id"))
+		if err != nil {
+			handler.AbortWith(c, 500, err.Error())
+			return
+		}
+		c.Status(200)
+	}
+}
+
+func InsertMany(boardService *service.BoardService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var boards []dto.BoardInsert
+
+		ctx := c.Request.Context()
+
+		if err := c.ShouldBind(&boards); err != nil {
+			handler.AbortWith(c, 400, "Bad Request")
+			return
+		}
+
 		c.JSON(200, gin.H{
-			"message": "Delete",
+			"message": "Insert Many",
 		})
 	}
 }
 
-func InsertMany(c *gin.Context) {
-	var boards []dto.BoardInsert
+func UpdateMany(boardService *service.BoardService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
 
-	if err := c.ShouldBind(&boards); err != nil {
-		handler.AbortWith(c, 400, "Bad Request")
-		return
+		c.JSON(200, gin.H{
+			"message": "Update Many",
+		})
 	}
-
-	c.JSON(200, gin.H{
-		"message": "Insert Many",
-	})
 }
 
-func UpdateMany(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "Update Many",
-	})
-}
+func DeleteMany(boardService *service.BoardService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
 
-func DeleteMany(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "Delete Many",
-	})
+		c.JSON(200, gin.H{
+			"message": "Delete Many",
+		})
+	}
 }
