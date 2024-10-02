@@ -99,6 +99,22 @@ func (b *BoardService) DeleteOne(ctx context.Context, id string) error {
 	return nil
 }
 
+func (b *BoardService) DeleteMany(ctx context.Context, ids []string) error {
+	var objectIds []primitive.ObjectID
+	for _, id := range ids {
+		objectId, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			return err
+		}
+		objectIds = append(objectIds, objectId)
+	}
+
+	filter := bson.M{"_id": bson.M{"$in": objectIds}}
+	_, err := b.provider.DeleteMany(ctx, dbName, collectionName, filter)
+
+	return err
+}
+
 func (b *BoardService) ToDto(board *entity.Board) *dto.BoardResponse {
 	return &dto.BoardResponse{
 		ID: board.ID.Hex(),

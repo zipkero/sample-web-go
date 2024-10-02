@@ -109,7 +109,7 @@ func InsertMany(boardService *service.BoardService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var boards []dto.BoardInsert
 
-		ctx := c.Request.Context()
+		// ctx := c.Request.Context()
 
 		if err := c.ShouldBind(&boards); err != nil {
 			handler.AbortWith(c, 400, "Bad Request")
@@ -124,7 +124,7 @@ func InsertMany(boardService *service.BoardService) gin.HandlerFunc {
 
 func UpdateMany(boardService *service.BoardService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ctx := c.Request.Context()
+		// ctx := c.Request.Context()
 
 		c.JSON(200, gin.H{
 			"message": "Update Many",
@@ -136,8 +136,25 @@ func DeleteMany(boardService *service.BoardService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
 
+		var boardIds dto.BoardDeleteMany
+		if err := c.ShouldBind(&boardIds); err != nil {
+			handler.AbortWith(c, 400, "Bad Request")
+			return
+		}
+
+		var boardIdsString []string
+		for _, boardId := range boardIds.IDs {
+			boardIdsString = append(boardIdsString, boardId)
+		}
+
+		err := boardService.DeleteMany(ctx, boardIdsString)
+		if err != nil {
+			handler.AbortWith(c, 500, err.Error())
+			return
+		}
+
 		c.JSON(200, gin.H{
-			"message": "Delete Many",
+			"data": boardIdsString,
 		})
 	}
 }

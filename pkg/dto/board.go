@@ -30,6 +30,10 @@ type BoardResponse struct {
 	BoardBase
 }
 
+type BoardDeleteMany struct {
+	IDs []string `json:"ids" binding:"required"`
+}
+
 func (b BoardInsert) ToEntity() *entity.Board {
 	return &entity.Board{
 		Title:    b.Title,

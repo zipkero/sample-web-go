@@ -50,3 +50,18 @@ func (m *MongoProvider) UpdateOne(ctx context.Context, db, collection string, fi
 	c := m.client.Database(db).Collection(collection)
 	return c.UpdateOne(ctx, filter, update)
 }
+
+func (m *MongoProvider) InsertMany(ctx context.Context, db, collection string, documents []interface{}) (*mongo.InsertManyResult, error) {
+	c := m.client.Database(db).Collection(collection)
+	return c.InsertMany(ctx, documents)
+}
+
+func (m *MongoProvider) DeleteMany(ctx context.Context, db, collection string, filter interface{}) (*mongo.DeleteResult, error) {
+	c := m.client.Database(db).Collection(collection)
+	return c.DeleteMany(ctx, filter)
+}
+
+func (m *MongoProvider) UpdateMany(ctx context.Context, db, collection string, filter interface{}, update interface{}) (*mongo.UpdateResult, error) {
+	c := m.client.Database(db).Collection(collection)
+	return c.UpdateMany(ctx, filter, update)
+}
