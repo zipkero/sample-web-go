@@ -4,6 +4,7 @@ package board
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/zipkero/sample-web-go/internal/entity"
 	"github.com/zipkero/sample-web-go/internal/service"
 	"github.com/zipkero/sample-web-go/pkg/dto"
 	"github.com/zipkero/sample-web-go/pkg/handler"
@@ -74,20 +75,20 @@ func UpdateOne(boardService *service.BoardService) gin.HandlerFunc {
 			return
 		}
 
-		entity, err := board.ToEntity()
+		boardEntity, err := board.ToEntity()
 		if err != nil {
 			handler.AbortWith(c, 400, "modify entity error")
 			return
 		}
 
-		err = boardService.UpdateOne(ctx, c.Param("id"), entity)
+		err = boardService.UpdateOne(ctx, c.Param("id"), boardEntity)
 		if err != nil {
 			handler.AbortWith(c, 500, err.Error())
 			return
 		}
 
 		c.JSON(200, gin.H{
-			"data": entity,
+			"data": boardEntity,
 		})
 	}
 }
@@ -109,15 +110,26 @@ func InsertMany(boardService *service.BoardService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var boards []dto.BoardInsert
 
-		// ctx := c.Request.Context()
+		ctx := c.Request.Context()
 
 		if err := c.ShouldBind(&boards); err != nil {
 			handler.AbortWith(c, 400, "Bad Request")
 			return
 		}
 
+		var entities []*entity.Board
+		for _, board := range boards {
+			entities = append(entities, board.ToEntity())
+		}
+
+		ids, err := boardService.InsertMany(ctx, entities)
+		if err != nil {
+			handler.AbortWith(c, 500, err.Error())
+			return
+		}
+
 		c.JSON(200, gin.H{
-			"message": "Insert Many",
+			"data": ids,
 		})
 	}
 }

@@ -99,6 +99,25 @@ func (b *BoardService) DeleteOne(ctx context.Context, id string) error {
 	return nil
 }
 
+func (b *BoardService) InsertMany(ctx context.Context, boards []*entity.Board) ([]string, error) {
+	var documents []interface{}
+	for _, board := range boards {
+		documents = append(documents, board)
+	}
+
+	result, err := b.provider.InsertMany(ctx, dbName, collectionName, documents)
+	if err != nil {
+		return nil, err
+	}
+
+	var ids []string
+	for _, id := range result.InsertedIDs {
+		ids = append(ids, id.(primitive.ObjectID).Hex())
+	}
+
+	return ids, err
+}
+
 func (b *BoardService) DeleteMany(ctx context.Context, ids []string) error {
 	var objectIds []primitive.ObjectID
 	for _, id := range ids {
