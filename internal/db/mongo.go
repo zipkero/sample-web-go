@@ -61,7 +61,6 @@ func (m *MongoProvider) DeleteMany(ctx context.Context, db, collection string, f
 	return c.DeleteMany(ctx, filter)
 }
 
-func (m *MongoProvider) UpdateMany(ctx context.Context, db, collection string, filter interface{}, update interface{}) (*mongo.UpdateResult, error) {
-	c := m.client.Database(db).Collection(collection)
-	return c.UpdateMany(ctx, filter, update)
+func (m *MongoProvider) UpdateMany(ctx context.Context, db, collection string, models []mongo.WriteModel) (*mongo.BulkWriteResult, error) {
+	return m.client.Database(db).Collection(collection).BulkWrite(ctx, models)
 }

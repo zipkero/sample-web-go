@@ -8,6 +8,7 @@ import (
 	"github.com/zipkero/sample-web-go/pkg/dto"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type BoardService struct {
@@ -131,6 +132,22 @@ func (b *BoardService) DeleteMany(ctx context.Context, ids []string) error {
 	filter := bson.M{"_id": bson.M{"$in": objectIds}}
 	_, err := b.provider.DeleteMany(ctx, dbName, collectionName, filter)
 
+	return err
+}
+
+func (b *BoardService) UpdateMany(ctx context.Context, boards []*entity.Board) error {
+	var models []mongo.WriteModel
+	for _, board := range boards {
+		filter := bson.M{"_id": board.ID}
+		updateDoc, err := bson.Marshal(board)
+		if err != nil {
+			return err
+		}
+		updateModel := mongo.NewUpdateOneModel().SetFilter(filter).SetUpdate(updateDoc)
+		models = append(models, updateModel)
+	}
+
+	_, err := b.provider.UpdateMany(ctx, dbName, collectionName, models)
 	return err
 }
 
