@@ -136,7 +136,29 @@ func InsertMany(boardService *service.BoardService) gin.HandlerFunc {
 
 func UpdateMany(boardService *service.BoardService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// ctx := c.Request.Context()
+		ctx := c.Request.Context()
+
+		var boards []dto.BoardUpdate
+		if err := c.ShouldBind(&boards); err != nil {
+			handler.AbortWith(c, 400, "Bad Request")
+			return
+		}
+
+		var entities []*entity.Board
+		for _, b := range boards {
+			board, err := b.ToEntity()
+			if err != nil {
+				handler.AbortWith(c, 400, "modify entity error")
+				return
+			}
+			entities = append(entities, board)
+		}
+
+		err := boardService.UpdateMany(ctx, entities)
+		if err != nil {
+			handler.AbortWith(c, 500, err.Error())
+			return
+		}
 
 		c.JSON(200, gin.H{
 			"message": "Update Many",
